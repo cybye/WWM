@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html manifest_="cache.manifest">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<title>WWM</title>
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+<link rel="stylesheet" href="css/jquery.mobile-1.4.0.min.css">
+<link rel="stylesheet" href="css/wwm.css" />
+<link rel="stylesheet" href="css/default.css">
+<link rel="stylesheet" id="style-css">
+<link rel="shortcut icon" href="img/apple-touch-icon.png">
+<script src="js/jquery-1.10.2.min.js"></script>
+<script type="text/javascript">
+	$(document).bind("mobileinit", function() {
+				$.mobile.hashListeningEnabled = false;
+				$.mobile.pushStateEnabled = false;
+				$.mobile.changePage.defaults.changeHash = false;
+				$.mobile.toolbar.prototype.options.addBackBtn= false;
+	});
+</script>
+<script src="js/jquery.mobile-1.4.0.min.js"></script>
+<script src="js/game.js"></script>
+</head>
+<body>
+	<div data-role="page" id="levels" data-add-back-btn="true"
+		data-theme="a">
+		<div data-role="header">
+		</div>
+		<div role="main" class="ui-content">
+			<div>
+			</div>
+			<div>
+				<!-- Classes added to the wrapper -->
+				<a href="#"
+					class="ui-btn ui-shadow ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-inline">Delete</a>
+				<a href="#"
+					class="ui-btn ui-shadow ui-corner-all ui-icon-plus ui-btn-icon-notext ui-btn-inline">Plus</a>
+				<a href="#"
+					class="ui-btn ui-shadow ui-corner-all ui-icon-minus ui-btn-icon-notext ui-btn-inline">Minus</a>
+				<a href="#"
+					class="ui-btn ui-shadow ui-corner-all ui-icon-check ui-btn-icon-notext ui-btn-inline">Check</a>
+			</div>
+			<table class="level">
+				<tr id="t15" class="white">
+					<td class="number">15</td>
+					<td id="p15"></td>
+					<td>1 Million</td>
+				</tr>
+				<tr id="t14" class="">
+					<td class="number">14</td>
+					<td id="p14"></td>
+					<td>500.000</td>
+				</tr>
+				<tr id="t13" class="">
+					<td class="number">13</td>
+					<td id="p13"></td>
+					<td>125.000</td>
+				</tr>
+				<tr id="t12" class="">
+					<td class="number">12</td>
+					<td id="p12"></td>
+					<td>64.000</td>
+				</tr>
+				<tr id="t11" class="">
+					<td class="number">11</td>
+					<td id="p11"></td>
+					<td>32.000</td>
+				</tr>
+				<tr id="t10" class="white" class="number">
+					<td>10</td>
+					<td id="p10"></td>
+					<td>16.000</td>
+				</tr>
+				<tr id="t9" class="">
+					<td class="number">9</td>
+					<td id="p9"></td>
+					<td>8.000</td>
+				</tr>
+				<tr id="t8" class="">
+					<td class="number">8</td>
+					<td id="p8"></td>
+					<td>4.000</td>
+				</tr>
+				<tr id="t7" class="">
+					<td class="number">7</td>
+					<td id="p7"></td>
+					<td>2.000</td>
+				</tr>
+				<tr id="t6" class="">
+					<td class="number">6</td>
+					<td id="p6"></td>
+					<td>1.000</td>
+				</tr>
+				<tr id="t5" class="white">
+					<td class="number">5</td>
+					<td id="p5"></td>
+					<td>500</td>
+				</tr>
+				<tr id="t4" class="">
+					<td class="number">4</td>
+					<td id="p4"></td>
+					<td>300</td>
+				</tr>
+				<tr id="t3" class="active">
+					<td class="number">3</td>
+					<td id="p3"></td>
+					<td>200</td>
+				</tr>
+				<tr id="t2" class="">
+					<td class="number">2</td>
+					<td id="p2"></td>
+					<td>100</td>
+				</tr>
+				<tr id="t1" class="">
+					<td class="number">1</td>
+					<td id="p1"></td>
+					<td>50</td>
+				</tr>
+			</table>
+		</div>
+
+		<div data-role="footer">
+			<div data-role="navbar">
+				<ul>
+					<li><a href="#stage" class="ui-btn-active">Zur Frage </a></li>
+				</ul>
+			</div>
+			<!-- /navbar -->
+		</div>
+
+	</div>
+	<!-- /levels-->
+
+	<div id="stage" data-role="page">
+		<div data-role="header">
+		<h3></h3>
+			<a href="#jokers"
+				class="ui-btn ui-shadow ui-corner-all ui-icon-check ui-btn-icon-right ui-btn-left">Joker</a>
+		</div>
+		<!-- /header -->
+
+		<div role="main" class="ui-content">
+
+			<div class="ui-body ui-body-a ui-corner-all">
+				<div id="question">Was soll das hier denn sein?</div>
+				<div>
+					<progress max="100" value="100" id="time"></progress>
+				</div>
+			</div>
+
+			<div style="height: 10px"></div>
+
+			<div class="ui-grid-a ui-responsive">
+				<div class="ui-block-a">
+					<a href="#" id="contA" class="ui-btn ui-shadow ui-corner-all">
+						<table width="100%">
+							<tr>
+								<td class="orange" align="left">A:</td>
+								<td id="answerA" align="left">blablabla</td>
+							</tr>
+						</table>
+					</a>
+				</div>
+				<div class="ui-block-b">
+					<a href="#" id="contB" class="ui-btn ui-shadow ui-corner-all">
+						<table width="100%">
+							<tr>
+								<td class="orange" align="left">B:</td>
+								<td id="answerB" align="left">blablabla</td>
+							</tr>
+						</table>
+					</a>
+				</div>
+				<div class="ui-block-a">
+					<a href="#" id="contC" class="ui-btn ui-shadow ui-corner-all">
+						<table width="100%">
+							<tr>
+								<td class="orange" align="left">C:</td>
+								<td id="answerC" align="left">blablabla</td>
+							</tr>
+						</table>
+					</a>
+				</div>
+				<div class="ui-block-b">
+					<a href="#" id="contD" class="ui-btn ui-shadow ui-corner-all">
+						<table width="100%">
+							<tr>
+								<td class="orange" align="left">D:</td>
+								<td id="answerD" align="left">blablabla</td>
+							</tr>
+						</table>
+					</a>
+				</div>
+			</div>
+
+		</div>
+		<!-- /content -->
+
+		<div data-role="panel" id="jokers" data-position="left"
+			data-display="overlay" data-theme="a">
+			<ul>
+				<li><a href="#" id="j0" class="ui-btn ui-shadow ui-corner-all">Doppelte Zeit</a></li>
+				<li><a href="#" id="j1" class="ui-btn ui-shadow ui-corner-all">50:50</a></li>
+				<li><a href="#" id="j2" class="ui-btn ui-shadow ui-corner-all">Zweite Chance</a></li>
+			</ul>
+		</div>
+	</div>
+	<!-- /page -->
+
+
+	<div id="gameover" data-role="page">
+		<div data-role="header">
+		</div>
+		<div role="main" class="ui-content">
+		Leider verloren
+		</div>
+	</div>
+
+	<div id="help">
+		<!-- killroy was here (with cybye) -->
+	</div>
+</body>
+</html>
