@@ -74,7 +74,7 @@ function processQuestions(body) {
 function updateQuestions(andThen) {
 	if(andThen === undefined) return;
 
-	req("https://docs.google.com/spreadsheet/pub?key=0Aql9DV8CuQNRdFBvM1VGN3l6X1BzUkR1OUhFdzhraEE&single=true&gid=0&output=txt", 
+	req("", 
 			function(error, resp, body) {
 		if (!error && resp.statusCode == 200) {
 			return andThen(processQuestions(body));
