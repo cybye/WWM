@@ -74,8 +74,10 @@ function jokers(state) {
 	for(var i=0;i<state.jokers.length;i++) {
 		if(state.jokers[i]) {
 			$("#j"+i).removeClass('ui-disabled');
+			$("#sj"+i).removeClass('ui-disabled');
 		} else {
 			$("#j"+i).addClass('ui-disabled');
+			$("#sj"+i).addClass('ui-disabled');
 		}
 	}
 }
@@ -89,10 +91,14 @@ function init() {
 		$(buttons[i]).click((function(x){return function(){setAnswer(x);};})(i));
 	}
 	
-	
+	// the one
+	$("#help").click(function(e) {
+		socket.emit('wwm',{id:id,cmd:'help'});
+	});
+
 	$("#goQuestion").click(function(){
 		// change
-		activateLatLng(49.2,7,0); // TODO
+		activateLatLng(); 
 	});
 	
 	$("#btn-ready").click(function(){
@@ -126,23 +132,19 @@ function blink(id){
 
 
 
-function activateLatLng(lat, lng, distance) {
+function activateLatLng() {
 	$.mobile.changePage('#compass');
 
-	// the one
-	$("#help").click(function(e) {
-		socket.emit('wwm',{id:id,cmd:'setDistance', arg:0.00001});
-	});
 
-	var last = Date.now();
+	var last = 0;
 	
-	GEO.track(lat, lng, function(dist, heading, angle) {
-		compass(heading, angle);
+	GEO.track(function(lat, lng, dist, heading, angle) {
+		// compass(heading, angle);
 		$('#compass-dist').html('' + Math.floor(dist * 1000) + 'm');
 		var now = Date.now();
 		if(now > last - 1000) {
 			last = now;
-			socket.emit('wwm',{id:id,cmd:'setDistance', arg:dist});
+			socket.emit('wwm',{id:id,cmd:'atPosition', arg:[lat,lng]});
 		}
 	}, function(e) {
 		console.log("GPSERROR");
@@ -160,8 +162,15 @@ var  client = {
 		showQuestion: function(x) {
 			showQuestion(x);
 		},
+		compass: function(x) {
+			compass(GEO.heading,x.arg.angle);
+			$('#compass-dist').html('' + Math.floor(x.arg.distance * 1000) + 'm');
+		},
 		atPosition: function(x) {
 			console.log("atPosition",x);
+			$("#msg-ready").html(x.arg);
+			if(x.cont == "0")
+				$("#btn-ready").hide(); //addClass("ui-disabled");
 			$.mobile.changePage('#ready');
 		},
 		rightAnswer: function(x) {

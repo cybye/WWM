@@ -1,3 +1,4 @@
 {
-   "questionsUrl": "http://localhost:8080/dummy.txt"
+   "questionsUrl": "http://localhost:8080/dummy.txt",
+   "positionsUrl": "http://localhost:8080/pos.txt"
 }

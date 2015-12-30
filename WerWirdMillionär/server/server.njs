@@ -158,13 +158,23 @@ var	serverside = {
 		update: function(game, socket) {
 			if(!game.state) {
 				game.state = {}; // initializing
-				newGame(function(questions, settings) {
+				game.playerPositions = {}; // track pos
+				newGame(function(questions, positions, settings) {
 					game.state = {
-						current: {cmd:'init', jokers:[1,1,1]},
+						current: {
+							cmd:'init', 
+							jokers:[1,1,1]
+						},
+						positions: positions,
 						questions: questions,
 						jokers: [1,1,1],
 						pos: 0,
+						geo: positions[0],
+						walk: true
 					}
+					log("initialized game with " + positions.length + " positions");
+					log(JSON.stringify(questions));
+					
 					game.sync()
 				})
 			} else 
@@ -175,32 +185,35 @@ var	serverside = {
 		// confirms whatever has to be confirmed - 
 		showQuestion: function(game, socket, arg) {
 			if(game.state) {
-				game.state.pos ++;
-				game.state.start = Date.now();
-				game.state.timer = {};
-				game.state.timeout = 60000;
-				game.state.current = {
+				var st = game.state;
+				st.pos ++;
+				st.start = Date.now();
+				st.timer = {};
+				st.timeout = 60000;
+				var q = st.questions[st.pos].shift(); 
+				st.right = q.right;
+				st.current = {
 						cmd:'showQuestion', 
-						arg: game.state.questions[game.state.pos],
-						jokers: game.state.jokers,
+						arg: {question: q.question, answers: q.answers },
+						jokers: st.jokers,
 				};
 				game.sync();
-				game.state.timer = setInterval(function(){
+				st.timer = setInterval(function(){
 					var now = Date.now();
-					if(now-game.state.start> game.state.timeout/*ms*/) {
-						clearInterval(game.state.timer);
-						game.state.current = {
+					if(now-st.start> st.timeout/*ms*/) {
+						clearInterval(st.timer);
+						st.current = {
 								cmd: 'failed',
 								arg: {
-									answer:1, // TBD 
-									next:game.state.pos+1
+									answer:1, // TODO
+									next:st.pos+1
 									}
 						};
 						game.sync();
 					} else {
 						game.replyAll({
 							cmd: 'timer',
-							arg: (now-game.state.start)/game.state.timeout * 100
+							arg: (now-st.start)/st.timeout * 100
 						});
 					}
 				}, 200);
@@ -212,53 +225,85 @@ var	serverside = {
 		// give the answer (1..4) to the current question
 		setAnswer : function(game, socket, arg) {
 			if(game.state) {
-				if(game.state.timer)clearInterval(game.state.timer);
-				if(arg == 1) { 
-					game.state.current = {
+				var st = game.state;
+				if(st.timer)clearInterval(st.timer);
+				log("setAnswer " + JSON.stringify(arg) + " right is " + st.right);
+				if(arg == st.right) {
+					st.current = {
 							cmd: 'rightAnswer',
 							arg: {
-								answer:1, // TBD 
-								next:game.state.pos+1
-								}
+								answer: st.right,
+								next: st.pos+1
+								} 
 					};
+					st.geo = st.positions[st.pos+1];
 					game.sync();
+					st.walk = true;
 				} else {
-					game.state.current = {
+					st.current = {
 							cmd: 'failed',
 							arg: {
 								answer:arg, 
-								right:1
-								} // TBD
+								right: st.right
+								} 
 					}
 					game.sync();
 				}
 			}
 		},
 		
-		// sets the geo-position of the player
-		setDistance : function(game, socket, arg) {
-			if(arg && arg < 0.01 /*km*/ && game.state) {
-				game.state.current = {
-						cmd: 'atPosition'
+		atPosition : function(game,socket,arg) {
+			log("received position " +JSON.stringify(arg));
+			game.playerPositions[socket.id] = arg; // track positions
+			if(game.state.walk) {
+				var st = game.state;
+				var d = distance(st.geo[0],st.geo[1], arg[0], arg[1]);
+				if(d[0] < 0.01) {
+					st.current = {cmd: 'atPosition', arg: st.geo[2], cont: st.geo[3]}
+					st.walk = false;
+					game.sync();
+				} else {
+					game.reply(socket, {
+						cmd: 'compass',
+						arg: {angle: d[1], distance:d[0] }// or not?
+					})
 				}
-				game.sync();
-			}				
+			}
 		},
+		
+		// sets the geo-position of the player, a bit of help
+		help : function(game, socket, arg) {
+			log("help requested");
+			var st = game.state;
+			if(st.walk) {
+				st.current = {cmd: 'atPosition', arg: st.geo[2], cont: st.geo[3]}
+				st.walk = false;
+				game.sync();
+			}
+		},
+		
 		// requests one of the jokers
 		useJoker : function(game, socket, arg) {
-			if(game.state.jokers[arg]) {
-				game.state.jokers[arg] = 0;
+			log("joker used " + arg);
+			var st = game.state;
+			if(st.jokers[arg]) {
+				st.jokers[arg] = 0;
 				if(arg == 0) {
 					// double time
-					game.state.timeout = 120000;
-					game.sync();
+					st.timeout = 120000;
 				} else if(arg == 1) {
-					// 50:50
-					game.state.current.disabled = [0,3]; // TODO
-					game.sync();
+					var a=[];
+					for(var i=0;i<4;i++) if(i!=st.right) a.push(i);
+					shuffle(a);
+					st.current.disabled = [a.pop(),a.pop()];
+					
 				} else if(arg == 2) {
-					// extra chance
+					st.start = Date.now();
+					var q = st.questions[st.pos].shift(); // next
+					st.right = q.right;
+					st.current.arg = {question: q.question, answers: q.answers }
 				}
+				game.sync();
 			}
 		}
 		
@@ -266,6 +311,28 @@ var	serverside = {
 	}
 
 
+// GEO
+function toRad(x) {
+	return x * Math.PI / 180;
+}
+function toDeg(x) {
+	return x * 180 / Math.PI;
+}
+function distance(aLat, aLng, bLat, bLng) {
+	  var R = 6371;
+	  var arc = Math.atan2(aLng-bLng,aLat-bLat);
+	  var lat1 = toRad(aLat), lon1 = toRad(aLng);
+	  var lat2 = toRad(bLat), lon2 = toRad(bLng);
+	  var dLat = lat2 - lat1;
+	  var dLon = lon2 - lon1;
+
+	  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+	          Math.cos(lat1) * Math.cos(lat2) * 
+	          Math.sin(dLon/2) * Math.sin(dLon/2);
+	  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+	  var d = R * c;
+	  return [d,arc];
+	}
 
 
 /*
@@ -279,7 +346,8 @@ function processQuestions(body) {
 			var q = {
 					question: t[0],
 					answers: [ t[1], t[2], t[3], t[4] ],
-					rating: t[5]
+					rating: t[5],
+					right: t[6]-1
 			};
 			questions.push(q);
 		}
@@ -300,12 +368,23 @@ function processQuestions(body) {
 	return levels;
 }
 
+function processPositions(body) {
+	var positions = [];
+	body.split('\r\n').forEach(function (line) { 
+		var t = line.split("\t");
+		if(t[0] != "Lat") {
+			var q = t;
+			positions.push(q);
+		}
+	});
+	return positions;
+}
 
 function updateQuestions(url, andThen) {
 	if(andThen === undefined) return;
 	req({url:url}, 
 			function(error, resp, body) {
-		log("response status", resp.statusCode)
+		log("questions response status " + resp.statusCode)
 		//log("ä") console may not be able to log in utf8
 		if (!error && resp.statusCode == 200) {
 			 andThen(processQuestions(body));
@@ -313,6 +392,26 @@ function updateQuestions(url, andThen) {
 		if(error) log("Error " + error);
 		return // geht net bei fehler
 	})
+}
+
+function updatePositions(url, andThen) {
+	if(andThen === undefined) return;
+	req({url:url}, 
+			function(error, resp, body) {
+		log("positions response status " + resp.statusCode)
+		//log("ä") console may not be able to log in utf8
+		if (!error && resp.statusCode == 200) {
+			 andThen(processPositions(body));
+		}
+		if(error) log("Error " + error);
+		return // geht net bei fehler
+	})
+}
+
+// http://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array-in-javascript
+function shuffle(o){
+    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+    return o;
 }
 
 function newGame(andThen) {
@@ -324,13 +423,19 @@ function newGame(andThen) {
 		log('Level ' + i + " questions " + levels[i].length)
 	}
 			 */
+			/*
 			var game = {}
 			for(var i in levels) {
 				game[i] = levels[i][Math.floor(Math.random()*levels[i].length)]
 			}
-
-			andThen(game, settings)	
-		});
+			*/
+			for(var i in levels) {
+				shuffle(levels[i]);
+			}
+			updatePositions(settings.positionsUrl, function(positions) {
+				andThen(levels, positions, settings)	
+			})
+		});		
 	});
 }
 

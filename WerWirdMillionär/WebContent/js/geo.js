@@ -12,7 +12,7 @@ var tLon;
 var lat;
 var lon;
 
-function track(lat, lon, callback, error) {
+function track(callback, error, lat, lon) {
 	this.callback = callback;
 	this.onError = error;
 	this.tLat = lat;
@@ -43,13 +43,18 @@ function getLocation(that) {
 }
 
 function geo_success(that) {	
-	var north = 0;/*distance(81.3, -110.8, that.lat,that.lon)mag north*/;	
-	var dist = distance(that.tLat,that.tLon,that.lat,that.lon);
-	that.distance = dist[0];
-	that.angle = dist[1]-north;
+	if(that.lat && that.lon) {
+		var north = 0;/*distance(81.3, -110.8, that.lat,that.lon)mag north*/;	
+		var dist = distance(that.tLat,that.tLon,that.lat,that.lon);
+		that.distance = dist[0];
+		that.angle = dist[1]-north;
+	}
 	if(that.callback) 
-		that.callback(that.distance,
-				that.compassHeading,
+		that.callback(
+				that.lat,
+				that.lon,
+				that.distance,
+				toRad(that.compassHeading),
 				that.angle); 
 }
 
@@ -63,7 +68,10 @@ function compass_success(heading){
 	// console.log('Success');
 	this.compassHeading = heading;
     if(this.callback) {
-    	this.callback(this.distance, toRad(this.compassHeading), this.angle);
+    	this.callback(
+    			this.lat,
+    			this.lon,
+    			this.distance, toRad(this.compassHeading), this.angle);
     }
 }
 
@@ -128,12 +136,13 @@ function drawCompass(div, imgsrc) {
 	real.height=canvas.height;
 	
 	fun = function(deg_compass, deg_needle) {
+		//var deg_compass = compassHeading;
 		if(!active) {
 			lastcomp = deg_compass;
 			lastneedle = deg_needle;
 			return;
 		}
-//		console.log("compass deg:" + deg_compass + " compass n: "+ deg_needle, ctx, rctx , canvas, real);
+		//console.log("compass deg:" + deg_compass + " compass n: "+ deg_needle, ctx, rctx , canvas, real);
 		ctx.save();
 		ctx.clearRect(0,0,canvas.width, canvas.height);
 		ctx.translate((canvas.width) / 2, (canvas.height) / 2);
@@ -191,7 +200,8 @@ return {
 	untrack: untrack,
 	compass_success: compass_success,
 	compass_error: compass_error,
-	drawCompass: drawCompass
+	drawCompass: drawCompass,
+	heading: compassHeading
 };
 
 }();
