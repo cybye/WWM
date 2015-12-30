@@ -135,8 +135,7 @@ function drawCompass(div, imgsrc) {
 	real.width=canvas.width;
 	real.height=canvas.height;
 	
-	fun = function(_deg_compass, deg_needle) {
-		var deg_compass = _deg_compass?_deg_compass:compassHeading;
+	fun = function(deg_compass, deg_needle) {
 		if(!active) {
 			lastcomp = deg_compass;
 			lastneedle = deg_needle;

@@ -131,14 +131,13 @@ function blink(id){
 //compass 
 
 var last = 0;
+var _heading = 0;
 
 function activateLatLng() {
 	$.mobile.changePage('#compass');
-
-
-	
 	
 	GEO.track(function(lat, lng, dist, heading, angle) {
+		_heading = heading;
 		if(lat && lng) {
 			// compass(heading, angle);
 			$('#compass-dist').html('' + Math.floor(dist * 1000) + 'm');
@@ -165,7 +164,7 @@ var  client = {
 			showQuestion(x);
 		},
 		compass: function(x) {
-			compass(undefined,x.arg.angle);
+			compass(_heading,x.arg.angle);
 			$('#compass-dist').html('' + Math.floor(x.arg.distance * 1000) + 'm');
 		},
 		atPosition: function(x) {
