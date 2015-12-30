@@ -443,4 +443,4 @@ console.log('about to start')
 
 // newGame(function(game, settings){console.log(game); console.log(settings) })
 
-server.listen(8080);
+server.listen(9999);

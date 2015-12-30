@@ -66,12 +66,12 @@ function compass_error(){ console.log('Error'); }
 
 function compass_success(heading){
 	// console.log('Success');
-	this.compassHeading = heading;
+	this.compassHeading = toRad(heading);
     if(this.callback) {
     	this.callback(
     			this.lat,
     			this.lon,
-    			this.distance, toRad(this.compassHeading), this.angle);
+    			this.distance, this.compassHeading, this.angle);
     }
 }
 
@@ -130,8 +130,8 @@ function drawCompass(div, imgsrc) {
 	var lastcomp=0, lastneedle=0;
 
 	//fck
-	canvas.width=div.clientWidth?div.clientWidth:90;
-	canvas.height=div.clientHeight?div.clientHeight:90;
+	canvas.width=div.clientWidth?div.clientWidth:200;
+	canvas.height=div.clientHeight?div.clientHeight:200;
 	real.width=canvas.width;
 	real.height=canvas.height;
 	
@@ -157,13 +157,13 @@ function drawCompass(div, imgsrc) {
 			ctx.rotate(deg_needle);
 		//ctx.lineWidth=2;
 		ctx.beginPath();
-		ctx.lineTo(-5,0); ctx.lineTo(0,-30); ctx.lineTo(5,0);
+		ctx.lineTo(-5,0); ctx.lineTo(0,-80); ctx.lineTo(5,0);
 		ctx.closePath();
 		ctx.fillStyle = 'rgb(120,0,0)';
 		ctx.strokeStyle ='red';
 		ctx.stroke(); ctx.fill();
 		ctx.beginPath();
-		ctx.lineTo(-5,0); ctx.lineTo(0,30); ctx.lineTo(5,0);
+		ctx.lineTo(-5,0); ctx.lineTo(0,80); ctx.lineTo(5,0);
 		ctx.closePath();
 		ctx.fillStyle = 'white';
 		ctx.strokeStyle ='black';

@@ -130,21 +130,23 @@ function blink(id){
 
 //compass 
 
-
+var last = 0;
 
 function activateLatLng() {
 	$.mobile.changePage('#compass');
 
 
-	var last = 0;
+	
 	
 	GEO.track(function(lat, lng, dist, heading, angle) {
-		// compass(heading, angle);
-		$('#compass-dist').html('' + Math.floor(dist * 1000) + 'm');
-		var now = Date.now();
-		if(now > last - 1000) {
-			last = now;
-			socket.emit('wwm',{id:id,cmd:'atPosition', arg:[lat,lng]});
+		if(lat && lng) {
+			// compass(heading, angle);
+			$('#compass-dist').html('' + Math.floor(dist * 1000) + 'm');
+			var now = Date.now();
+			if(now > last + 1000) {
+				last = now;
+				socket.emit('wwm',{id:id,cmd:'atPosition', arg:[lat,lng]});
+			}
 		}
 	}, function(e) {
 		console.log("GPSERROR");
