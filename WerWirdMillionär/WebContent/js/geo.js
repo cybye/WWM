@@ -54,7 +54,7 @@ function geo_success(that) {
 				that.lat,
 				that.lon,
 				that.distance,
-				toRad(that.compassHeading),
+				that.compassHeading,
 				that.angle); 
 }
 
@@ -65,7 +65,7 @@ function geo_error(that) {
 function compass_error(){ console.log('Error'); }
 
 function compass_success(heading){
-	// console.log('Success');
+	console.log('Success', heading);
 	this.compassHeading = toRad(heading);
     if(this.callback) {
     	this.callback(
@@ -135,8 +135,8 @@ function drawCompass(div, imgsrc) {
 	real.width=canvas.width;
 	real.height=canvas.height;
 	
-	fun = function(deg_compass, deg_needle) {
-		//var deg_compass = compassHeading;
+	fun = function(_deg_compass, deg_needle) {
+		var deg_compass = _deg_compass?_deg_compass:compassHeading;
 		if(!active) {
 			lastcomp = deg_compass;
 			lastneedle = deg_needle;
@@ -201,7 +201,6 @@ return {
 	compass_success: compass_success,
 	compass_error: compass_error,
 	drawCompass: drawCompass,
-	heading: compassHeading
 };
 
 }();

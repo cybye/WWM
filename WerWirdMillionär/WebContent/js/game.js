@@ -165,7 +165,7 @@ var  client = {
 			showQuestion(x);
 		},
 		compass: function(x) {
-			compass(GEO.heading,x.arg.angle);
+			compass(undefined,x.arg.angle);
 			$('#compass-dist').html('' + Math.floor(x.arg.distance * 1000) + 'm');
 		},
 		atPosition: function(x) {
