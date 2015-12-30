@@ -139,8 +139,6 @@ function activateLatLng() {
 	GEO.track(function(lat, lng, dist, heading, angle) {
 		_heading = heading;
 		if(lat && lng) {
-			// compass(heading, angle);
-			$('#compass-dist').html('' + Math.floor(dist * 1000) + 'm');
 			var now = Date.now();
 			if(now > last + 1000) {
 				last = now;
