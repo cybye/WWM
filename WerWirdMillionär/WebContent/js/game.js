@@ -2,28 +2,15 @@
 
 var buttons = ["#contA","#contB","#contC","#contD"];
 
-
-var question = {
-		no: 1,
-		time: 60000,
-		q: "Was soll denn das hier sein?",
-		answers: ["Antwort1", "Antwort2", "Antwort3", "Antwort4"] 
-};
-
+var id = "cybye";
 
 
 function setAnswer(i) {
-	console.log("answer",i);
-	
-	if(i != 1) {
-		goWrong(i,1);
-	}  else 
-		goRight(1);
+	console.log("answer",i);	
+	socket.emit('wwm',{id:id,cmd:'setAnswer', arg:i});
 }
 
 function goWrong(i, ok) {
-	clearInterval(timer);
-
 	$(buttons[i]).addClass('wrong');
 	blink(buttons[i]);
 	$(buttons[ok]).addClass('right');	
@@ -32,85 +19,101 @@ function goWrong(i, ok) {
 	setTimeout(function(){$.mobile.changePage('#gameover');},2000);
 }
 
-function goRight(i) {
-	clearInterval(timer);
+function goRight(cur,next) {
 
-	$(buttons[i]).addClass('right');	
-	blink(buttons[i]);
+	$(buttons[cur]).addClass('right');	
+	blink(buttons[cur]);
 
 	setTimeout(function(){
 		$.mobile.changePage('#levels');
-		// simulation!
+		
+		for(var i=1;i<=15;i++) {
+			if(i!=next-1) {
+				$("#t"+i).removeClass('active');
+				$("#p"+i).html('&nbsp;');
+			}
+		}
+		for(var i=1;i<next;i++) {
+			$("#p"+i).html('♦');
+		}
 		setTimeout(function() {
-			question.no ++;
-			showQuestion(question);
-		},1000);// sim
-		},2000);
+			$("#t"+(next-1)).removeClass('active');	
+			$("#t"+next).addClass('active');	
+		},1000);
+	},2000);
 }
 
 
-function showQuestion(q) {
+function showQuestion(state) {
+	console.log("showQuestion",state);
+	
+	jokers(state); 
+	
+	var q = state.arg;
+	
 	for(var i=0;i<buttons.length;i++) {
-		$(buttons[i]).removeClass('right wrong');
+		$(buttons[i]).removeClass('right wrong ui-disabled');
 	}
-	
-	
-	$("#question").html(q.q);
+	$("#question").html(q.question);
 	$("#answerA").html(q.answers[0]);
 	$("#answerB").html(q.answers[1]);
 	$("#answerC").html(q.answers[2]);
 	$("#answerD").html(q.answers[3]);
-	
-	for(var i=1;i<=15;i++) {
-		$("#t"+i).removeClass('active');
-		$("#p"+i).html('&nbsp;');
-	}
-	for(var i=1;i<q.no;i++) {
-		$("#p"+i).html('♦');
-	}
-	$("#t"+q.no).addClass('active');	
-}
 
-var timer;
-
-function startTimer() {
-	var start = new Date().getTime();
-	timer = setInterval(function(){
-		var now = new Date().getTime();
-		$("#time").attr('value', (now-start)/question.time * 100 );
-		if(now-start>question.time) {
-			clearInterval(timer);
-			goWrong(0,1); //sim 
+	if(state.disabled) {
+		for(var i=0;i<state.disabled.length;i++) {
+			$(buttons[state.disabled[i]]).addClass('ui-disabled');
 		}
-	}, 100);
+	}
+
+	// do init here
+	$.mobile.changePage('#stage');
 }
+
+function jokers(state) {
+	for(var i=0;i<state.jokers.length;i++) {
+		if(state.jokers[i]) {
+			$("#j"+i).removeClass('ui-disabled');
+		} else {
+			$("#j"+i).addClass('ui-disabled');
+		}
+	}
+}
+
+var compass;
 
 function init() {
+	compass = GEO.drawCompass(document.getElementById('compass-div'),'img/compass.png');
+	
 	for(var i=0;i<buttons.length;i++) {
 		$(buttons[i]).click((function(x){return function(){setAnswer(x);};})(i));
 	}
 	
+	
+	$("#goQuestion").click(function(){
+		// change
+		activateLatLng(49.2,7,0); // TODO
+	});
+	
+	$("#btn-ready").click(function(){
+		socket.emit('wwm',{id:id,cmd:'showQuestion'});
+	});
+	
+	
 	$("#j0").click(function(){
-		$("#j0").addClass('ui-disabled');
+		socket.emit('wwm',{id:id,cmd:'useJoker',arg: 0});
 		$("#jokers").panel('close');
-		question.time += question.time;
-	}); // double time
+	}); 
 	
 	$("#j1").click(function(){
-		$("#j1").addClass('ui-disabled');
+		socket.emit('wwm',{id:id,cmd:'useJoker',arg: 1});
 		$("#jokers").panel('close');
-		
-	}); // 50:50
+	}); 
+	
 	$("#j2").click(function(){
-		$("#j2").addClass('ui-disabled');
-		$("#jokers").panel('close');
-		
-	}); // 2nd try
-	
-	
-	$(document).on("pageshow","#stage",function(){ // When entering pagetwo
-		  startTimer();
-		});
+		socket.emit('wwm',{id:id,cmd:'useJoker',arg: 2});
+		$("#jokers").panel('close');		
+	}); 
 }
 
 
@@ -119,36 +122,83 @@ function blink(id){
 		$(id).delay(50).fadeTo(50,0.5).delay(50).fadeTo(50,1);
 }
 
-
-$(document).ready(function() {
-	console.log("ready");
-	init();
-	
-	showQuestion(question);
-});
+//compass 
 
 
-// compass function from zodiak
-function activateLatLng(stage, id) {
-	var f = GEO.drawCompass(document.getElementById('ang-' + id),
-			stages[game.player].compass);
 
+function activateLatLng(lat, lng, distance) {
+	$.mobile.changePage('#compass');
+
+	// the one
 	$("#help").click(function(e) {
-		$('#help').unbind('click');
-		GEO.untrack();
-		stageDone(stage, id, '');
-		nextStage(Cr.next(game.k[game.k.length-1]));
+		socket.emit('wwm',{id:id,cmd:'setDistance', arg:0.00001});
 	});
 
-	GEO.track(stage.latlng[0], stage.latlng[1], function(dist, heading, angle) {
-		f(heading, angle);
-		$('#dist-' + id).html('' + Math.floor(dist * 1000) + 'm');
-		if (dist * 1000 < stage.latlng[2]) {
-			GEO.untrack();
-			stageDone(stage, id, '');
-			nextStage(Cr.next(game.k[game.k.length-1]));
+	var last = Date.now();
+	
+	GEO.track(lat, lng, function(dist, heading, angle) {
+		compass(heading, angle);
+		$('#compass-dist').html('' + Math.floor(dist * 1000) + 'm');
+		var now = Date.now();
+		if(now > last - 1000) {
+			last = now;
+			socket.emit('wwm',{id:id,cmd:'setDistance', arg:dist});
 		}
 	}, function(e) {
 		console.log("GPSERROR");
 	});
 }
+
+
+// client side implementation react to messages sent from server
+var  client = {
+		init: function(x) {
+			// game is initializing
+			console.log("init",x);
+			$.mobile.changePage('#levels');
+		},
+		showQuestion: function(x) {
+			showQuestion(x);
+		},
+		atPosition: function(x) {
+			console.log("atPosition",x);
+			$.mobile.changePage('#ready');
+		},
+		rightAnswer: function(x) {
+			console.log("rightAnswer",x);
+			goRight(x.arg.answer, x.arg.next);
+		},
+		failed: function(x) {
+			console.log("failed",x);
+			goWrong(x.arg.answer, x.arg.right);
+		},
+		timer: function(x) {
+			$("#time").attr('value',x.arg);
+		}
+};
+
+
+function connect() {
+	var s = io.connect('');
+	s.on('disconnect', function() { 
+		$.mobile.changePage('#error');
+	});
+	s.on('error', function() { 
+		$.mobile.changePage('#error');
+	});
+	s.on('wwm', function(data){
+		client[data.state.cmd](data.state);
+	});
+	s.emit('wwm',{'id':id});
+	return s;
+}
+
+var socket;
+
+$(document).ready(function() {
+	console.log("ready");
+	init();
+	socket = connect();
+});
+
+

@@ -1,0 +1,10 @@
+{
+  "name" : "wwm",
+  "version" : "0.0.1",
+  "dependencies" : {
+	  "connect" : "*",
+	  "http" : "*",
+	  "serve-static" : "*",
+	  "finalhandler" : "*"
+  }
+}

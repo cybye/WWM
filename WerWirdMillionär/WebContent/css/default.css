@@ -55,3 +55,21 @@ progress::-webkit-progress-value { background: #1a8dbe; }
 .level .active .number {
 	color: white;
 }
+
+#help {
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    z-index: 2000;
+}
+
+#compass-div {
+	text-align: center;
+}
+
+#compass-dist {
+	font-size: 10px;
+	text-align: center;
+}

@@ -22,9 +22,21 @@
 	});
 </script>
 <script src="js/jquery.mobile-1.4.0.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/geo.js"></script>
 <script src="js/game.js"></script>
 </head>
 <body>
+	<div data-role="page" id="login" data-add-back-btn="false"
+		data-theme="a">
+		<div data-role="header">
+		</div>
+		<div role="main" class="ui-content">
+			<label for="team">Bitte gib einen Teamnamen ein:</label>
+    		<input type="text" name="name" id="team" value=""  />
+		</div>
+	</div>
+	
 	<div data-role="page" id="levels" data-add-back-btn="true"
 		data-theme="a">
 		<div data-role="header">
@@ -104,7 +116,7 @@
 					<td id="p4"></td>
 					<td>300</td>
 				</tr>
-				<tr id="t3" class="active">
+				<tr id="t3" class="">
 					<td class="number">3</td>
 					<td id="p3"></td>
 					<td>200</td>
@@ -114,7 +126,7 @@
 					<td id="p2"></td>
 					<td>100</td>
 				</tr>
-				<tr id="t1" class="">
+				<tr id="t1" class="active">
 					<td class="number">1</td>
 					<td id="p1"></td>
 					<td>50</td>
@@ -125,7 +137,7 @@
 		<div data-role="footer">
 			<div data-role="navbar">
 				<ul>
-					<li><a href="#stage" class="ui-btn-active">Zur Frage </a></li>
+					<li><a href="#" id="goQuestion" class="ui-btn-active">Zur Frage </a></li>
 				</ul>
 			</div>
 			<!-- /navbar -->
@@ -133,6 +145,8 @@
 
 	</div>
 	<!-- /levels-->
+	
+	
 
 	<div id="stage" data-role="page">
 		<div data-role="header">
@@ -211,6 +225,17 @@
 	<!-- /page -->
 
 
+	<div id="compass" data-role="page">
+		<div data-role="header">
+		</div>
+		<div role="main" class="ui-content">
+		Compass
+		<div id="compass-div"></div>
+		<div id="compass-dist"></div>
+		
+		</div>
+	</div>
+
 	<div id="gameover" data-role="page">
 		<div data-role="header">
 		</div>
@@ -218,6 +243,21 @@
 		Leider verloren
 		</div>
 	</div>
+	
+	<div id="ready" data-role="page">
+		<div data-role="header">
+		</div>
+		<div role="main" class="ui-content">
+			 <div data-role="navbar">
+				<ul>
+					<li><a href="#" id="btn-ready" class="ui-btn ui-shadow ui-corner-all">Bereit?</a></li>
+				</ul>
+			</div>
+			<!-- /navbar -->
+		
+		</div>
+	</div>
+	
 
 	<div id="help">
 		<!-- killroy was here (with cybye) -->

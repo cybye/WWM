@@ -33,8 +33,8 @@ function getLocation(that) {
 		this.watcher = navigator.geolocation.watchPosition(function(x){
 			that.lat = x.coords.latitude;
 			that.lon = x.coords.longitude;
-			that.accuracy = x.coords.accuracy;
 			geo_success(that);
+			that.accuracy = x.coords.accuracy;
 		},function(e) { console.log(e); },
 		{enableHighAccuracy:true, timeout:5000});
 	} else {

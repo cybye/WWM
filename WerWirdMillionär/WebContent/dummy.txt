@@ -1,0 +1,4 @@
+frage	eins	zwei	drei	vier	1	2
+frage	eins	zwei	drei	vier	2	2
+frage	eins	zwei	drei	vier	3	2
+
