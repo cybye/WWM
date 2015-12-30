@@ -2,7 +2,7 @@
 
 var buttons = ["#contA","#contB","#contC","#contD"];
 
-var id = "cybye";
+var id = location.hash?location.hash:"cybye";
 
 
 function setAnswer(i) {
@@ -132,12 +132,14 @@ function blink(id){
 
 var last = 0;
 var _heading = 0;
+var _angle = 0;
 
 function activateLatLng() {
 	$.mobile.changePage('#compass');
 	
 	GEO.track(function(lat, lng, dist, heading, angle) {
 		_heading = heading;
+		compass(_heading, _angle);
 		if(lat && lng) {
 			var now = Date.now();
 			if(now > last + 1000) {
@@ -162,7 +164,8 @@ var  client = {
 			showQuestion(x);
 		},
 		compass: function(x) {
-			compass(_heading,x.arg.angle);
+			_angle = x.arg.angle;
+			compass(_heading,_angle);
 			$('#compass-dist').html('' + Math.floor(x.arg.distance * 1000) + 'm');
 		},
 		atPosition: function(x) {
