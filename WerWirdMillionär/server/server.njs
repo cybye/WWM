@@ -22,10 +22,11 @@ function log(x) {
 }
 
 
-
+/*
 io.configure(function() {
       io.set('log level',2);
 });
+*/
 
 io.sockets.on('connection', function(socket) {
 	  log('connected client ' + socket.id);
