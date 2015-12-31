@@ -185,6 +185,13 @@ var  client = {
 		},
 		timer: function(x) {
 			$("#time").attr('value',x.arg);
+		},
+		chat: function(x) {
+			$("#chat").html(x.arg);
+			$("#chat").fadeOut(2000, function(){
+				$("#chat").empty();
+				$("#chat").show();
+			});
 		}
 };
 

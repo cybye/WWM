@@ -1,4 +1,6 @@
 {
    "questionsUrl": "http://localhost:9999/dummy.txt",
-   "positionsUrl": "http://localhost:9999/pos.txt"
+   "positionsUrl": "http://localhost:9999/pos.txt",
+   "port": 9999,
+   "secret":123456
 }

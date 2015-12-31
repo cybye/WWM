@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html manifest_="cache.manifest">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<title>WWM</title>
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+<link rel="stylesheet" href="css/jquery.mobile-1.4.0.min.css">
+<link rel="stylesheet" href="css/wwm.css" />
+<link rel="stylesheet" href="css/default.css">
+<link rel="stylesheet" id="style-css">
+<link rel="shortcut icon" href="img/apple-touch-icon.png">
+<script src="js/jquery-1.10.2.min.js"></script>
+<script type="text/javascript">
+	$(document).bind("mobileinit", function() {
+				$.mobile.hashListeningEnabled = false;
+				$.mobile.pushStateEnabled = false;
+				$.mobile.changePage.defaults.changeHash = false;
+				$.mobile.toolbar.prototype.options.addBackBtn= false;
+	});
+</script>
+<script src="js/jquery.mobile-1.4.0.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+function connect() {
+	var s = io.connect('');
+	s.on('disconnect', function() { 
+		log('disconnected');
+	});
+	s.on('error', function() { 
+		log('error');
+	});
+	s.on('wwm', function(data){
+		log('wwm',data);
+	});
+	// should be emitted frequently to et access to new games
+	s.emit('wwm',{'secret':location.hash.substring(1)});
+	return s;
+}
+
+function log(m, obj) {
+	var html = "<p>" 
+	+ Date.now() 
+	+ " "
+	+ m
+	+ " "
+	+ JSON.stringify(obj);
+	$('#log').append(html);
+	var objDiv = document.getElementById("log");
+	objDiv.scrollTop = objDiv.scrollHeight;
+}
+
+$(document).ready(function() {
+	console.log("ready");
+	connect();
+});
+</script>
+</head>
+<body>
+	<div id="log"></div>	
+	<!-- killroy was here (with cybye) -->
+</body>
+</html>

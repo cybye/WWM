@@ -5,7 +5,6 @@ var finalhandler = require('finalhandler');
 var req = require('request')
 var fs = require('fs');
 
-
 var serve = serveStatic('../WebContent', {'index': ['index.html', 'index.htm']})
 
 var app = connect()
@@ -28,20 +27,29 @@ io.configure(function() {
 });
 */
 
+var listeners = {};
+
 io.sockets.on('connection', function(socket) {
-	  log('connected client ' + socket.id);
-	  
-	  // handle disconnects
-	  socket.on('disconnect', function() {
-          log('disconnecting client ' + socket.id);
-        //  findGame(socket, undefined).disconnect()
-	  });
-	  
-	  // handle messages
-	  socket.on('wwm', function(data) {
-		  // find game and join client, else ask for a id
-		  findGame(socket,data).apply()
-	  });	  
+
+	log('connected client ' + socket.id);
+
+	// handle disconnects
+	socket.on('disconnect', function() {
+		log('disconnecting client ' + socket.id);
+		delete listeners[socket.id];
+		games.disconnect(socket);
+	});
+
+	// handle messages
+	socket.on('wwm', function(data) {
+		// find game and join client, else ask for a id
+		if(data.secret === settings.secret) {
+			log('ADMIN CONNECTION ' + socket.id);
+			listeners[socket.id] = socket;
+		}
+		informListeners(data, socket,'in');
+		findGame(socket,data).apply()
+	});	  
 });
 
 
@@ -49,7 +57,16 @@ io.sockets.on('connection', function(socket) {
  * tell the client or the server something
  */
 function tell(socket, id, state) {
-	socket.emit("wwm",{id: id, state: state})
+	var d ={id: id, state: state};
+	socket.emit("wwm",d)
+	informListeners(d, socket, 'out');
+}
+
+function informListeners(data, socket, direction) {
+	for(var i in listeners) 
+		if(listeners.hasOwnProperty(i)) {
+			listeners[i].emit("wwm", {client: socket.id, dir: direction, data:data});
+		}
 }
 
 
@@ -69,8 +86,10 @@ var games = (function() {
 				id: id, 
 				clients: clients,
 				created: Date.now(),
+				accessed: Date.now(),
 				// apply the given command
 				apply: function(socket, data) {
+					active[id].accessed = Date.now(); //track
 					if(!clients[socket.id]) {
 						clients[socket.id] = socket
 						update(active[id], socket)
@@ -98,8 +117,16 @@ var games = (function() {
 		// disconnect a client
 		disconnect: function(socket) {
 			for(var i in active) 
-				if(active.hasOwnProperty(i)) 
+				if(active.hasOwnProperty(i)) { 
 					delete active[i].clients[socket.id]
+					// delete empty games? 
+				}
+		},
+		connectAll: function(socket) {
+			for(var i in active) {
+				if(active.hasOwnProperty(i))
+					active[i].clients[socket.id] = socket;
+			}
 		}
 	}
 	
@@ -206,8 +233,7 @@ var	serverside = {
 						st.current = {
 								cmd: 'failed',
 								arg: {
-									answer:1, // TODO
-									next:st.pos+1
+									right: st.right
 									}
 						};
 						game.sync();
@@ -228,7 +254,7 @@ var	serverside = {
 			if(game.state) {
 				var st = game.state;
 				if(st.timer)clearInterval(st.timer);
-				log("setAnswer " + JSON.stringify(arg) + " right is " + st.right);
+				log(game.id + " setAnswer " + JSON.stringify(arg) + " right is " + st.right + " for question " + st.pos);
 				if(arg == st.right) {
 					st.current = {
 							cmd: 'rightAnswer',
@@ -254,8 +280,8 @@ var	serverside = {
 		},
 		
 		atPosition : function(game,socket,arg) {
-			log("received position " +JSON.stringify(arg));
-			game.playerPositions[socket.id] = arg; // track positions
+			log(game.id + " received position " +JSON.stringify(arg));
+			game.playerPositions[socket.id] = [Date.now(),arg]; // track positions
 			if(game.state.walk) {
 				var st = game.state;
 				var d = distance(st.geo[0],st.geo[1], arg[0], arg[1]);
@@ -274,7 +300,7 @@ var	serverside = {
 		
 		// sets the geo-position of the player, a bit of help
 		help : function(game, socket, arg) {
-			log("help requested");
+			log(game.id + " help requested");
 			var st = game.state;
 			if(st.walk) {
 				st.current = {cmd: 'atPosition', arg: st.geo[2], cont: st.geo[3]}
@@ -285,7 +311,7 @@ var	serverside = {
 		
 		// requests one of the jokers
 		useJoker : function(game, socket, arg) {
-			log("joker used " + arg);
+			log(game.id + " joker used " + arg);
 			var st = game.state;
 			if(st.jokers[arg]) {
 				st.jokers[arg] = 0;
@@ -306,6 +332,14 @@ var	serverside = {
 				}
 				game.sync();
 			}
+		},
+		
+		chat : function(game,socket,arg) {
+			log(game.id + " chat message " + arg);
+			game.replyAll(socket, {
+				cmd: 'chat',
+				arg: arg
+			});
 		}
 		
 		
@@ -416,8 +450,6 @@ function shuffle(o){
 }
 
 function newGame(andThen) {
-	fs.readFile('etc/settings.json','utf8', function (err,data) {
-		var settings = JSON.parse(data); 
 		updateQuestions(settings.questionsUrl, function(levels) {
 			/*
 	for(var i in levels) {
@@ -437,11 +469,11 @@ function newGame(andThen) {
 				andThen(levels, positions, settings)	
 			})
 		});		
-	});
 }
 
-console.log('about to start')
+console.log('reading settings')
 
-// newGame(function(game, settings){console.log(game); console.log(settings) })
+var settings = JSON.parse(fs.readFileSync('etc/settings.json','utf8'));
 
-server.listen(9999);
+console.log('listening at ' + settings.port)
+server.listen(settings.port);

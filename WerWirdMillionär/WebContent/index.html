@@ -27,6 +27,17 @@
 <script src="js/game.js"></script>
 </head>
 <body>
+
+	<div data-role="page" id="login" data-add-back-btn="false"
+		data-theme="a">
+		<div data-role="header">
+		</div>
+		<div role="main" class="ui-content center">
+			Warte auf Show-Beginn...
+		</div>
+	</div>
+
+
 	<div data-role="page" id="login" data-add-back-btn="false"
 		data-theme="a">
 		<div data-role="header">
@@ -242,6 +253,15 @@
 		</div>
 	</div>
 	
+	<div id="error" data-role="page">
+		<div data-role="header">
+		</div>
+		<div role="main" class="ui-content error">
+		Verbindungsfehler!
+		</div>
+	</div>
+	
+	
 	<div id="ready" data-role="page">
 		<div data-role="header">
 		</div>
@@ -257,7 +277,8 @@
 		</div>
 	</div>
 	
-
+	<div id="chat"></div>	
+	
 	<div id="help">
 		<!-- killroy was here (with cybye) -->
 	</div>
