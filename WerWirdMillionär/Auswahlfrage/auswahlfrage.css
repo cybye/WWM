@@ -1,0 +1,14 @@
+.greenbutton {
+	color: green;
+}
+.redbutton {
+	color: red;
+}
+.timeout {
+	color: black;
+	background: red;
+}
+.greensubmitbutton {
+	color: white;
+	background: green;
+}
