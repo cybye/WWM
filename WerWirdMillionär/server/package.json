@@ -4,7 +4,9 @@
   "dependencies" : {
 	  "connect" : "*",
 	  "http" : "*",
+	  "request" : "*",
 	  "serve-static" : "*",
-	  "finalhandler" : "*"
+	  "finalhandler" : "*",
+	  "mongoose" : "*"
   }
 }
