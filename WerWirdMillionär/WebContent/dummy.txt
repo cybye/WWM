@@ -1,31 +1,31 @@
-frage1	eins	zwei	drei	vier	1	2
-frage2	eins	zwei	drei	vier	2	2
-frage3	eins	zwei	drei	vier	3	2
-frage4	eins	zwei	drei	vier	4	2
-frage5	eins	zwei	drei	vier	5	2
-frage6	eins	zwei	drei	vier	6	2
-frage7	eins	zwei	drei	vier	7	2
-frage8	eins	zwei	drei	vier	8	2
-frage9	eins	zwei	drei	vier	9	2
-frage10	eins	zwei	drei	vier	10	2
-frage11	eins	zwei	drei	vier	11	2
-frage12	eins	zwei	drei	vier	12	2
-frage13	eins	zwei	drei	vier	13	2
-frage14	eins	zwei	drei	vier	14	2
-frage15	eins	zwei	drei	vier	15	2
-bfrage1	eins	zwei	drei	vier	1	2
-bfrage2	eins	zwei	drei	vier	2	2
-bfrage3	eins	zwei	drei	vier	3	2
-bfrage4	eins	zwei	drei	vier	4	2
-bfrage5	eins	zwei	drei	vier	5	2
-bfrage6	eins	zwei	drei	vier	6	2
-bfrage7	eins	zwei	drei	vier	7	2
-bfrage8	eins	zwei	drei	vier	8	2
-bfrage9	eins	zwei	drei	vier	9	2
-bfrage10	eins	zwei	drei	vier	10	2
-bfrage11	eins	zwei	drei	vier	11	2
-bfrage12	eins	zwei	drei	vier	12	2
-bfrage13	eins	zwei	drei	vier	13	2
-bfrage14	eins	zwei	drei	vier	14	2
-bfrage15	eins	zwei	drei	vier	15	2
+frage1	eins	zwei	drei	vier	0	2	author0
+frage2	eins	zwei	drei	vier	1	2	author1
+frage3	eins	zwei	drei	vier	2	2	author2
+frage4	eins	zwei	drei	vier	3	2	author3
+frage5	eins	zwei	drei	vier	4	2	author4
+frage6	eins	zwei	drei	vier	5	2	author5
+frage7	eins	zwei	drei	vier	6	2	author6
+frage8	eins	zwei	drei	vier	7	2	author7
+frage9	eins	zwei	drei	vier	8	2	author8
+frage10	eins	zwei	drei	vier	9	2	author9
+frage11	eins	zwei	drei	vier	10	2	author10
+frage12	eins	zwei	drei	vier	11	2	author11
+frage13	eins	zwei	drei	vier	12	2	author12
+frage14	eins	zwei	drei	vier	13	2	author13
+frage15	eins	zwei	drei	vier	14	2	author14
+bfrage1	eins	zwei	drei	vier	0	2	author15
+bfrage2	eins	zwei	drei	vier	1	2	author16
+bfrage3	eins	zwei	drei	vier	2	2	author17
+bfrage4	eins	zwei	drei	vier	3	2	author18
+bfrage5	eins	zwei	drei	vier	4	2	author19
+bfrage6	eins	zwei	drei	vier	5	2	author20
+bfrage7	eins	zwei	drei	vier	6	2	author21
+bfrage8	eins	zwei	drei	vier	7	2	author22
+bfrage9	eins	zwei	drei	vier	8	2	author23
+bfrage10	eins	zwei	drei	vier	9	2	author24
+bfrage11	eins	zwei	drei	vier	10	2	author25
+bfrage12	eins	zwei	drei	vier	11	2	author26
+bfrage13	eins	zwei	drei	vier	12	2	author27
+bfrage14	eins	zwei	drei	vier	13	2	author28
+bfrage15	eins	zwei	drei	vier	14	2	author29
 
