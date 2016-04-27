@@ -1,25 +1,54 @@
-
-var connect = require('connect');
-var serveStatic = require('serve-static');
-var finalhandler = require('finalhandler');
-var req = require('request')
-var fs = require('fs');
-
-var serve = serveStatic('../WebContent', {'index': ['index.html', 'index.htm']})
-
-var app = connect()
-, http = require('http')
-, server = http.createServer(function(req,res) {
-	var done = finalhandler(req, res)
-	serve(req, res, done)
-}, app)
-, io = require('socket.io').listen(server);
-
-
 function log(x) {
 	console.log(new Date() + " wwm " + x);
 }
+var express = require('express');  
+var app = express();  
+var server = require('http').createServer(app);  
+var io = require('socket.io')(server);
+var fs = require('fs');
+var request = require('request')
+var bodyParser = require('body-parser')
 
+
+// json api
+var api_version = '/api/v1';
+
+app.use(bodyParser.json());       // to support JSON-encoded bodies
+
+function security(req, res, andThen) {
+	if(!req.query || !req.query.secret || req.query.secret != settings.secret) {
+		res.status(403).send("403 forbidden");
+	} else andThen(req,res);
+}
+
+// create game - should be post, but for simplicity ;)
+app.get(api_version + '/create', function(req,res){
+	console.log('create', req.query);
+	security(req,res,function(req,res) {
+		if(!req.query.id) res.send("please provide correct parameters");
+		else 	
+			createGame(req.query.id, req.query.name, function() {
+				res.setHeader('Content-Type', 'application/json');
+				res.send("created")
+			}, function(err) {
+				res.status(500).send("error creating game");
+			})
+	});
+});
+//list the games
+app.get(api_version + '/list', function(req,res){
+	console.log('list', req.query);
+	security(req,res,function(req,res) {
+		listStates(games.active, function(states){
+			res.setHeader('Content-Type', 'application/json');
+			res.send(JSON.stringify(states,null,2));
+		});
+	});
+});
+
+
+// rest is static
+app.use(express.static('../WebContent'));  
 
 /*
 io.configure(function() {
@@ -70,10 +99,11 @@ function informListeners(data, socket, direction) {
 }
 
 
-// games data-structure
+// games transient data-structure
 var games = (function() {	
 	var active = {}	
 	return {
+		active: active,
 		// find a game by the give socket and id
 		find: function(id) {
 				return active[id]
@@ -83,13 +113,10 @@ var games = (function() {
 			log('creating game ' + id);
 			var clients = {};
 			return active[id] = {
-				id: id, 
+				id: id,              
 				clients: clients,
-				created: Date.now(),
-				accessed: Date.now(),
 				// apply the given command
 				apply: function(socket, data) {
-					active[id].accessed = Date.now(); //track
 					if(!clients[socket.id]) {
 						clients[socket.id] = socket
 						update(active[id], socket)
@@ -111,6 +138,9 @@ var games = (function() {
 						if(clients.hasOwnProperty(i))
 							tell(clients[i], id, active[id].state.current, 
 									active[id].state.current)
+				},
+				destroy: function() {
+					delete active[id];
 				}
 			}			
 		},
@@ -177,6 +207,78 @@ function play(game, socket, data) {
  * messages and actions:
  */
 
+function createGame(id, name, andThen, orElse) {
+	newGame(function(questions, positions, settings) {
+		try {
+		saveState(id, initDefault(id, name, questions, positions));
+		log("initialized game " + id + " with name " + name + " and " + positions.length + " positions");
+		if(andThen) andThen();
+		} catch (err) {
+			log("unable to create game " + id + " " + JSON.stringify(err))
+			if(orElse) orElse(err);
+		}
+	})
+}
+
+function initDefault(id,name, questions, positions) {
+	return {
+			current: {
+				cmd:'init', 
+				jokers:[1,1,1]
+			},
+			id: id,
+			name: name,
+			positions: positions,
+			questions: questions,
+			jokers: [1,1,1],
+			pos: 0,
+			geo: positions[0],
+			walk: true,
+			created: Date.now()			
+	}
+}
+
+function saveState(id, state) {
+	log("writing game to file " + settings.gamedir +'/'+id)
+	fs.writeFileSync(settings.gamedir + '/' + id,JSON.stringify(state));
+}
+
+function loadState(id, questions, positions) {
+	try {
+		return JSON.parse(fs.readFileSync(settings.gamedir + '/' + id));
+	} catch(err){
+		log("unable to load game " + id + " " + JSON.stringify(err));
+		return null;
+	}
+}
+
+function getSmallState(id,s) {
+	return {
+		id: id,
+		name: s.name,
+		pos: s.pos,
+		jokers: s.jokers,
+		created: s.created,
+		started: s.started,
+		accessed: s.accessed
+	};
+} 
+
+function listStates(actives, andThen) {
+	fs.readdir(settings.gamedir,function(err,files){
+		var states = {};
+		for(var i in files) {
+			var s = JSON.parse(fs.readFileSync(settings.gamedir + '/' + files[i]));			
+			states[files[i]] = getSmallState(files[i],s);
+		}
+		for(var i in actives) {
+			if(actives.hasOwnProperty(i))
+				states[i] = getSmallState(i,actives[i].state)
+		}
+		andThen(states)
+	});
+}
+
 // server side implementation react to messages sent from client
 var	serverside = {
 		
@@ -187,25 +289,17 @@ var	serverside = {
 			if(!game.state) {
 				game.state = {}; // initializing
 				game.playerPositions = {}; // track pos
-				newGame(function(questions, positions, settings) {
-					game.state = {
-						current: {
-							cmd:'init', 
-							jokers:[1,1,1]
-						},
-						positions: positions,
-						questions: questions,
-						jokers: [1,1,1],
-						pos: 0,
-						geo: positions[0],
-						walk: true
-					}
-					log("initialized game with " + positions.length + " positions");
-					log(JSON.stringify(questions));
-					
+				game.state = loadState(game.id);
+				if(!game.state) {
+					game.state = { current: { cmd: 'illegalId' }} 
+					game.sync();
+					game.destroy(); // does only destroy the ref not the object
+				} else {
+					game.state.accessed = Date.now(); //track
 					game.sync()
-				})
+				}
 			} else 
+				game.state.accessed = Date.now(); //track
 				game.reply(socket, game.state.current)
 		},
 		
@@ -214,37 +308,51 @@ var	serverside = {
 		showQuestion: function(game, socket, arg) {
 			if(game.state) {
 				var st = game.state;
-				st.pos ++;
-				st.start = Date.now();
-				st.timer = {};
-				st.timeout = 60000;
-				var q = st.questions[st.pos].shift(); 
-				st.right = q.right;
-				st.current = {
-						cmd:'showQuestion', 
-						arg: {question: q.question, answers: q.answers },
-						jokers: st.jokers,
-				};
-				game.sync();
-				st.timer = setInterval(function(){
-					var now = Date.now();
-					if(now-st.start> st.timeout/*ms*/) {
-						clearInterval(st.timer);
-						st.current = {
-								cmd: 'failed',
-								arg: {
-									right: st.right
-									}
-						};
-						game.sync();
-					} else {
-						game.replyAll({
-							cmd: 'timer',
-							arg: (now-st.start)/st.timeout * 100
-						});
-					}
-				}, 200);
-				
+				if(st.nextQuestion) { 
+					st.nextQuestion = false; // only once
+					st.pos ++; 
+					st.start = Date.now();
+					st.timeout = 60000;
+					var q = st.questions[st.pos].shift(); 
+					st.right = q.right;
+					st.current = {
+							cmd:'showQuestion', 
+							arg: {question: q.question, answers: q.answers },
+							jokers: st.jokers,
+					};
+					st.timer = setInterval(function(){
+						var now = Date.now();
+						if(now-st.start> st.timeout/*ms*/) {
+							/*
+							 * check if the timejoker is still active, 
+							 * if so use it automatically
+							 * This is joker0
+							 */
+							if(st.jokers[0]) {
+								st.timeout = st.timeout + 60000;
+								st.jokers[0] = 0;
+								
+							} else {
+								clearInterval(st.timer);
+								st.current = {
+										cmd: 'failed',
+										arg: {
+											right: st.right
+										}
+								};
+								game.sync();
+								game.destroy();
+							}
+						} else {
+							game.replyAll({
+								cmd: 'timer',
+								arg: (now-st.start)/st.timeout * 100,
+								jokers: st.jokers
+							});
+						}
+					}, 200);
+				}
+				game.sync();				
 			}
 		},
 		
@@ -266,6 +374,12 @@ var	serverside = {
 					st.geo = st.positions[st.pos+1];
 					game.sync();
 					st.walk = true;
+					
+					// save the state for the given positions
+					if(st.pos == 5 || st.pos == 10 || st.pos == 13/*TODO REMOVE*/) {
+						saveState(game.id,game.state)
+					}
+					
 				} else {
 					st.current = {
 							cmd: 'failed',
@@ -275,6 +389,7 @@ var	serverside = {
 								} 
 					}
 					game.sync();
+					game.destroy();
 				}
 			}
 		},
@@ -286,8 +401,14 @@ var	serverside = {
 				var st = game.state;
 				var d = distance(st.geo[0],st.geo[1], arg[0], arg[1]);
 				if(d[0] < 0.01) {
-					st.current = {cmd: 'atPosition', arg: st.geo[2], cont: st.geo[3]}
+					st.current = {cmd: 'atPosition', arg: st.geo[3], cont: st.geo[4]}
 					st.walk = false;
+					st.nextQuestion = true;
+					
+					if(!st.started) {// the game starts when they are at the first question/position
+						st.started = Date.now();
+						saveState(game.id,st)
+					}
 					game.sync();
 				} else {
 					game.reply(socket, {
@@ -300,11 +421,12 @@ var	serverside = {
 		
 		// sets the geo-position of the player, a bit of help
 		help : function(game, socket, arg) {
-			log(game.id + " help requested");
+			log(game.id + " help requested ");
 			var st = game.state;
 			if(st.walk) {
-				st.current = {cmd: 'atPosition', arg: st.geo[2], cont: st.geo[3]}
+				st.current = {cmd: 'atPosition', arg: st.geo[3], cont: st.geo[4]}
 				st.walk = false;
+				st.nextQuestion = true; // dd dangerous
 				game.sync();
 			}
 		},
@@ -417,7 +539,7 @@ function processPositions(body) {
 
 function updateQuestions(url, andThen) {
 	if(andThen === undefined) return;
-	req({url:url}, 
+	request({url:url}, 
 			function(error, resp, body) {
 		log("questions response status " + resp.statusCode)
 		//log("ä") console may not be able to log in utf8
@@ -431,7 +553,7 @@ function updateQuestions(url, andThen) {
 
 function updatePositions(url, andThen) {
 	if(andThen === undefined) return;
-	req({url:url}, 
+	request({url:url}, 
 			function(error, resp, body) {
 		log("positions response status " + resp.statusCode)
 		//log("ä") console may not be able to log in utf8
@@ -450,6 +572,7 @@ function shuffle(o){
 }
 
 function newGame(andThen) {
+	
 		updateQuestions(settings.questionsUrl, function(levels) {
 			/*
 	for(var i in levels) {

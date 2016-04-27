@@ -2,8 +2,7 @@
 
 var buttons = ["#contA","#contB","#contC","#contD"];
 
-var id = location.hash?location.hash:"cybye";
-
+var id = -1; 
 
 function setAnswer(i) {
 	console.log("answer",i);	
@@ -71,6 +70,7 @@ function showQuestion(state) {
 }
 
 function jokers(state) {
+	if(state.jokers)
 	for(var i=0;i<state.jokers.length;i++) {
 		if(state.jokers[i]) {
 			$("#j"+i).removeClass('ui-disabled');
@@ -91,6 +91,11 @@ function init() {
 		$(buttons[i]).click((function(x){return function(){setAnswer(x);};})(i));
 	}
 	
+	$("#gisub").click(function(e){
+		id = $("#gameid").val();
+		socket.emit('wwm',{'id':id});
+	});
+	
 	// the one
 	$("#help").click(function(e) {
 		socket.emit('wwm',{id:id,cmd:'help'});
@@ -102,6 +107,7 @@ function init() {
 	});
 	
 	$("#btn-ready").click(function(){
+		console.log("here")
 		socket.emit('wwm',{id:id,cmd:'showQuestion'});
 	});
 	
@@ -155,6 +161,10 @@ function activateLatLng() {
 
 // client side implementation react to messages sent from server
 var  client = {
+		illegalId: function(x) {
+			console.log("request to enter a valid id");
+			$.mobile.changePage('#getid');
+		},
 		init: function(x) {
 			// game is initializing
 			console.log("init",x);
@@ -185,6 +195,7 @@ var  client = {
 		},
 		timer: function(x) {
 			$("#time").attr('value',x.arg);
+			jokers(x);
 		},
 		chat: function(x) {
 			$("#chat").html(x.arg);

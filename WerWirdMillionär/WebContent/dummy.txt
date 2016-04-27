@@ -13,6 +13,7 @@ frage12	eins	zwei	drei	vier	11	2	author11
 frage13	eins	zwei	drei	vier	12	2	author12
 frage14	eins	zwei	drei	vier	13	2	author13
 frage15	eins	zwei	drei	vier	14	2	author14
+frage16 Die Millionenfrage!	eins	zwei	drei	vier	15	2	author14
 bfrage1	eins	zwei	drei	vier	0	2	author15
 bfrage2	eins	zwei	drei	vier	1	2	author16
 bfrage3	eins	zwei	drei	vier	2	2	author17
