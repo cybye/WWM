@@ -2,11 +2,11 @@
   "name" : "wwm",
   "version" : "0.0.1",
   "dependencies" : {
-	  "connect" : "*",
+	  "socket.io" : "*",
+	  "express" : "*",
 	  "http" : "*",
+	  "body-parser" : "*",
 	  "request" : "*",
-	  "serve-static" : "*",
-	  "finalhandler" : "*",
 	  "mongoose" : "*"
   }
 }
