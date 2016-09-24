@@ -378,7 +378,7 @@ var	serverside = {
 					st.walk = true;
 					
 					// save the state for the given positions
-					if(st.pos == 5 || st.pos == 10 || st.pos == 13/*TODO REMOVE*/) {
+					if(st.pos == 4 || st.pos == 9) {
 						saveState(game.id,game.state)
 					}
 					
