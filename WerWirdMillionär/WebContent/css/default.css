@@ -29,6 +29,7 @@ progress::-webkit-progress-value { background: #1a8dbe; }
 
 .orange {
 	color: orange;
+	width: 40px;
 }
 
 .level {
