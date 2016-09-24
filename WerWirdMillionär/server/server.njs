@@ -315,7 +315,7 @@ var	serverside = {
 					st.nextQuestion = false; // only once
 					st.pos ++; 
 					st.start = Date.now();
-					st.timeout = 60000;
+					st.timeout = st.pos > 10? 30000 : st.pos > 5 ? 45000 : 60000;
 
 					shuffle(st.questions[st.pos]);
 					var q = st.questions[st.pos].shift(); 
@@ -335,7 +335,7 @@ var	serverside = {
 							 * This is joker0
 							 */
 							if(st.jokers[0]) {
-								st.timeout = st.timeout + 60000;
+								st.timeout = st.timeout + st.pos > 10? 30000 : st.pos > 5 ? 45000 : 60000;
 								st.jokers[0] = 0;
 								
 							} else {
