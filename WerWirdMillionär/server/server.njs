@@ -281,6 +281,7 @@ function listStates(actives, andThen) {
 	});
 }
 
+
 // server side implementation react to messages sent from client
 var	serverside = {
 		
@@ -315,7 +316,10 @@ var	serverside = {
 					st.pos ++; 
 					st.start = Date.now();
 					st.timeout = 60000;
+
+					shuffle(st.questions[st.pos]);
 					var q = st.questions[st.pos].shift(); 
+
 					st.right = q.right;
 					st.current = {
 							cmd:'showQuestion', 
