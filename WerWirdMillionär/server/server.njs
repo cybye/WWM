@@ -335,7 +335,7 @@ var	serverside = {
 							 * This is joker0
 							 */
 							if(st.jokers[0]) {
-								st.timeout = st.timeout + st.pos > 10? 30000 : st.pos > 5 ? 45000 : 60000;
+								st.timeout = st.timeout + (st.pos > 10? 30000 : st.pos > 5 ? 45000 : 60000);
 								st.jokers[0] = 0;
 								
 							} else {
