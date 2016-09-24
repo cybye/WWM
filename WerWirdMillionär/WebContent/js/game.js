@@ -187,7 +187,7 @@ var  client = {
 		},
 		rightAnswer: function(x) {
 			console.log("rightAnswer",x);
-			goRight(x.arg.answer, x.arg.next);
+			goRight(x.arg.answer, x.arg.next+1);
 		},
 		failed: function(x) {
 			console.log("failed",x);
