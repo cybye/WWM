@@ -25,9 +25,6 @@ function goRight(cur,next) {
 
 	setTimeout(function(){
 		
-		if(next>15) {
-			$.mobile.changePage('#ready');
-		} else {
 			$.mobile.changePage('#levels');
 			
 			for(var i=1;i<=15;i++) {
@@ -43,7 +40,6 @@ function goRight(cur,next) {
 				$("#t"+(next-1)).removeClass('active');	
 				$("#t"+next).addClass('active');	
 			},1000);
-		}
 	},2000);
 }
 
