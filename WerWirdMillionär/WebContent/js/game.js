@@ -154,7 +154,7 @@ function activateLatLng() {
 			}
 		}
 	}, function(e) {
-		console.log("GPSERROR");
+		window.alert("GPSERROR",e);
 	});
 }
 
