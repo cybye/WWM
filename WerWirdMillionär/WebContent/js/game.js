@@ -24,21 +24,26 @@ function goRight(cur,next) {
 	blink(buttons[cur]);
 
 	setTimeout(function(){
-		$.mobile.changePage('#levels');
 		
-		for(var i=1;i<=15;i++) {
-			if(i!=next-1) {
-				$("#t"+i).removeClass('active');
-				$("#p"+i).html('&nbsp;');
+		if(next>15) {
+			$.mobile.changePage('#ready');
+		} else {
+			$.mobile.changePage('#levels');
+			
+			for(var i=1;i<=15;i++) {
+				if(i!=next-1) {
+					$("#t"+i).removeClass('active');
+					$("#p"+i).html('&nbsp;');
+				}
 			}
+			for(var i=1;i<next;i++) {
+				$("#p"+i).html('♦');
+			}
+			setTimeout(function() {
+				$("#t"+(next-1)).removeClass('active');	
+				$("#t"+next).addClass('active');	
+			},1000);
 		}
-		for(var i=1;i<next;i++) {
-			$("#p"+i).html('♦');
-		}
-		setTimeout(function() {
-			$("#t"+(next-1)).removeClass('active');	
-			$("#t"+next).addClass('active');	
-		},1000);
 	},2000);
 }
 
