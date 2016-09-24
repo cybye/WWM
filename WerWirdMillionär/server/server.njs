@@ -1,5 +1,5 @@
-function log(x) {
-	console.log(new Date() + " wwm " + x);
+function log(x,y,z) {
+	console.log(new Date() + " wwm " + x,y,z);
 }
 var express = require('express');  
 var app = express();  
@@ -23,7 +23,7 @@ function security(req, res, andThen) {
 
 // create game - should be post, but for simplicity ;)
 app.get(api_version + '/create', function(req,res){
-	console.log('create', req.query);
+	log('create', req.query);
 	security(req,res,function(req,res) {
 		if(!req.query.id) res.send("please provide correct parameters");
 		else 	
@@ -37,7 +37,7 @@ app.get(api_version + '/create', function(req,res){
 });
 //list the games
 app.get(api_version + '/list', function(req,res){
-	console.log('list', req.query);
+	log('list', req.query);
 	security(req,res,function(req,res) {
 		listStates(games.active, function(states){
 			res.setHeader('Content-Type', 'application/json');
@@ -238,11 +238,13 @@ function initDefault(id,name, questions, positions) {
 	}
 }
 
+// destructively writes the given state
 function saveState(id, state) {
 	log("writing game to file " + settings.gamedir +'/'+id)
 	fs.writeFileSync(settings.gamedir + '/' + id,JSON.stringify(state));
 }
 
+// load state 
 function loadState(id, questions, positions) {
 	try {
 		return JSON.parse(fs.readFileSync(settings.gamedir + '/' + id));
@@ -492,8 +494,27 @@ function distance(aLat, aLng, bLat, bLng) {
 	}
 
 
+var rating_map = {
+"50":0,
+"100":1,
+"200":2,
+"300":3,
+"500":4,
+"1000":5,
+"2000":6,
+"4000":7,
+"8000":8,
+"16000"9:,
+"32000":10,
+"64000":11,
+"125000":12,
+"500000":13,
+"1000000":14
+};
+
 /*
  * base initialization of the available game's, questions, props aso.
+ * Format: Frage, Antw1, A2, A3, A4, Rating, Right 1-4.
  */
 function processQuestions(body) {
 	var questions = [];
@@ -503,7 +524,7 @@ function processQuestions(body) {
 			var q = {
 					question: t[0],
 					answers: [ t[1], t[2], t[3], t[4] ],
-					rating: t[5],
+					rating: rating_map[t[5]] || t[5], // map or take the val if not in map
 					right: t[6]-1
 			};
 			questions.push(q);
