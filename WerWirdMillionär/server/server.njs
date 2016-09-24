@@ -524,7 +524,7 @@ function processQuestions(body) {
 			var q = {
 					question: t[0],
 					answers: [ t[1], t[2], t[3], t[4] ],
-					rating: rating_map[t[5]] || t[5], // map or take the val if not in map
+					rating: rating_map[t[5]], // || t[5], // map or take the val if not in map
 					right: t[6]-1
 			};
 			questions.push(q);
