@@ -231,7 +231,7 @@ function initDefault(id,name, questions, positions) {
 			positions: positions,
 			questions: questions,
 			jokers: [1,1,1],
-			pos: 0,
+			pos: -1,
 			geo: positions[0],
 			walk: true,
 			created: Date.now()			
