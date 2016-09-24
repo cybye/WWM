@@ -27,6 +27,12 @@ function goRight(cur,next) {
 		
 			$.mobile.changePage('#levels');
 			
+			if(next>15) {
+				$("#goQuestion").html('Zum Gewinn');
+			} else {
+				$("#goQuestion").html('Zur Frage');
+			}
+			
 			for(var i=1;i<=15;i++) {
 				if(i!=next-1) {
 					$("#t"+i).removeClass('active');
@@ -40,6 +46,8 @@ function goRight(cur,next) {
 				$("#t"+(next-1)).removeClass('active');	
 				$("#t"+next).addClass('active');	
 			},1000);
+			
+			
 	},2000);
 }
 
