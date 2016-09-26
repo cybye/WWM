@@ -446,18 +446,21 @@ var	serverside = {
 				st.jokers[arg] = 0;
 				if(arg == 0) {
 					// double time
-					st.timeout = 120000;
+					st.timeout = st.pos > 10? 60000 : st.pos > 5 ? 90000 : 120000;
+					
 				} else if(arg == 1) {
 					var a=[];
 					for(var i=0;i<4;i++) if(i!=st.right) a.push(i);
 					shuffle(a);
 					st.current.disabled = [a.pop(),a.pop()];
+					log(game.id + " disabled questions " + JSON.stringify(st.current.disabled));
 					
 				} else if(arg == 2) {
 					st.start = Date.now();
 					var q = st.questions[st.pos].shift(); // next
 					st.right = q.right;
 					st.current.arg = {question: q.question, answers: q.answers }
+					st.current.disabled = false;
 				}
 				game.sync();
 			}
