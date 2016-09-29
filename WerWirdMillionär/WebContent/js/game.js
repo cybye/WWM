@@ -16,6 +16,7 @@ function goWrong(i, ok) {
 	$(buttons[ok]).addClass('right');	
 	blink(buttons[ok]);
 	*/
+	socket = false;
 	setTimeout(function(){$.mobile.changePage('#gameover');},800);
 }
 
