@@ -177,7 +177,7 @@ var auditSchema = new mongoose.Schema( {
 	state: mongoose.Schema.Types.Mixed,
 })
 
-// simple audit-log
+// simple audit-logexi
 auditSchema.statics.log = function(op, state) {
 	new Audit({
 		time: new Date(),

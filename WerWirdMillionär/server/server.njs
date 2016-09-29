@@ -407,7 +407,7 @@ var	serverside = {
 				var st = game.state;
 				var d = distance(st.geo[1],st.geo[2], arg[0], arg[1]);
 				// console.log(st.geo[0], st.geo[1], arg[0], arg[1]);
-				if(d[0] < 0.01) {
+				if(d[0] < 0.02 /* 20 meters */) {
 					st.current = {cmd: 'atPosition', arg: st.geo[3], cont: st.geo[4]}
 					st.walk = false;
 					st.nextQuestion = true;

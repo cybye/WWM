@@ -12,9 +12,10 @@ function setAnswer(i) {
 function goWrong(i, ok) {
 	$(buttons[i]).addClass('wrong');
 	blink(buttons[i]);
+	/* 20160928 
 	$(buttons[ok]).addClass('right');	
 	blink(buttons[ok]);
-	
+	*/
 	setTimeout(function(){$.mobile.changePage('#gameover');},2000);
 }
 
@@ -71,6 +72,7 @@ function showQuestion(state) {
 	if(state.disabled) {
 		for(var i=0;i<state.disabled.length;i++) {
 			$(buttons[state.disabled[i]]).addClass('ui-disabled');
+			$(buttons[state.disabled[i]]).html(''); // 20160928
 		}
 	}
 
