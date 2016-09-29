@@ -73,7 +73,6 @@ function showQuestion(state) {
 	if(state.disabled) {
 		for(var i=0;i<state.disabled.length;i++) {
 			$(buttons[state.disabled[i]]).addClass('ui-disabled');
-			$(buttons[state.disabled[i]]).html(''); // 20160928
 		}
 	}
 
