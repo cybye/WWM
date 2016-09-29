@@ -382,7 +382,7 @@ var	serverside = {
 					st.walk = true;
 					
 					// save the state for the given positions
-					if(st.pos == 4 || st.pos == 9) {
+					if(st.pos == 4 || st.pos == 9 || st.pos == 14) {
 						saveState(game.id,game.state)
 					}
 					
