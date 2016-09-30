@@ -63,16 +63,14 @@ function showQuestion(state) {
 	
 	for(var i=0;i<buttons.length;i++) {
 		$(buttons[i]).removeClass('right wrong ui-disabled');
+		$("#answer"+i).html(q.answers[i]);
 	}
 	$("#question").html(q.question);
-	$("#answerA").html(q.answers[0]);
-	$("#answerB").html(q.answers[1]);
-	$("#answerC").html(q.answers[2]);
-	$("#answerD").html(q.answers[3]);
 
 	if(state.disabled) {
 		for(var i=0;i<state.disabled.length;i++) {
 			$(buttons[state.disabled[i]]).addClass('ui-disabled');
+			$("#answer"+i).html('&nbsp;');
 		}
 	}
 
