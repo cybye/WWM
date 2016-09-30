@@ -70,7 +70,7 @@ function showQuestion(state) {
 	if(state.disabled) {
 		for(var i=0;i<state.disabled.length;i++) {
 			$(buttons[state.disabled[i]]).addClass('ui-disabled');
-			$("#answer"+i).html('&nbsp;');
+			$("#answer"+state.disabled[i]).html('&nbsp;');
 		}
 	}
 
