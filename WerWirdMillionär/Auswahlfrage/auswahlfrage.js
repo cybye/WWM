@@ -9,7 +9,7 @@ Usage Sample:
 <div id="cID">Init<script>countdown(100000,'cID');</script></div>
 */
  
-function countdown(time,id){
+function countdown(time,id,page){
  
   //time brauchen wir später noch
   t = time;
@@ -44,24 +44,32 @@ function countdown(time,id){
   {
     //Countdown-Funktion erneut aufrufen
     //diesmal mit einer Sekunde weniger
-    window.setTimeout('countdown('+ --time+',\''+id+'\')',1000);
+    window.setTimeout('countdown('+ --time+',\''+id+'\',\''+page+'\')',1000);
+
   }
   else
   {
     //führe eine funktion aus oder refresh die seite
     //dieser Teil hier wird genau einmal ausgeführt und zwar 
     //wenn die Zeit um ist.
-    	strZeit = "Zeit abgelaufen!";
-	document.getElementById('0').disabled = true;
-	document.getElementById('1').disabled = true;
-	document.getElementById('2').disabled = true;
-	document.getElementById('3').disabled = true;
-	document.getElementById('submit').disabled = true;
-	document.getElementById('0').className = "timeout";
-	document.getElementById('1').className = "timeout";
-	document.getElementById('2').className = "timeout";
-	document.getElementById('3').className = "timeout";
-	document.getElementById('submit').className = "timeout";
+
+	if ( page == 'question' ) {
+		console.log("timeout");
+	    	strZeit = "Zeit abgelaufen!";
+		document.getElementById('0').disabled = true;
+		document.getElementById('1').disabled = true;
+		document.getElementById('2').disabled = true;
+		document.getElementById('3').disabled = true;
+		document.getElementById('submit').disabled = true;
+		document.getElementById('0').className = "timeout";
+		document.getElementById('1').className = "timeout";
+		document.getElementById('2').className = "timeout";
+		document.getElementById('3').className = "timeout";
+		document.getElementById('submit').className = "timeout";
+	} else if ( page == 'answer' ) {
+		console.log("reload");
+		location.reload();
+	}
   }
   // Ausgabestring in Tag mit id="id" schreiben
   document.getElementById(id).innerHTML = strZeit;

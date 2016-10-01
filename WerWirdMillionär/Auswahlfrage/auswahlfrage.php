@@ -2,7 +2,18 @@
 	session_start();
 	$secretmethod = "AES-256-CBC";
 	$secrethash = "25c6c7ff35b9979b151f2136cd13b0e0";
+	$penalty = 300;
+	if ( isset($_SESSION['data'])) {
+		@$decrypted = json_decode(openssl_decrypt($_SESSION['data'], $secretmethod, $secrethash));
+		$nexttry = $decrypted->lastquestion - date("U") + $penalty;
+		if ( $nexttry < 1 ) {
+			session_destroy();
+			header("Location: " . $_SERVER['PHP_SELF']);
+			die();
+		}
+	}
 	html_head();
+	javascript();
 	if ( isset($_SESSION['data'])) {
 		$counter = 0;
 		@$decrypted = json_decode(openssl_decrypt($_SESSION['data'], $secretmethod, $secrethash));
@@ -15,12 +26,14 @@
 		}
 		if ( $solved ) {
 			echo "RICHTIG!";
+			session_destroy();
 		} else {
-			echo "<A HREF=\"" . $_SERVER['PHP_SELF'] . "\">FALSCH!</A>";
+			echo "Zeit bis zum n&auml;chsten Versuch: <BR>";
+			$nexttry = $decrypted->lastquestion - date("U") + $penalty;
+			echo "<b id=\"cID3\">   Init<script>countdown($nexttry,'cID3','answer');</script></b><br>\n";
+
 		}
-		session_destroy();
 	} else {
-		javascript();
 		echo "<form method=\"get\" action=\"" . $_SERVER['PHP_SELF']. "\">";
 
 		$url = "https://docs.google.com/spreadsheets/d/1nbm5eiUVNfPoZ4_wSVZUfKP5_OnHF4Fs8b52ur9QxPc/pub?gid=992374186&single=true&output=csv";
@@ -42,7 +55,7 @@
 		$data['answers'] = $set;	
 		shuffle_assoc($set);
 		echo "<P><B>$question</B></P>\n";
-		echo "<b id=\"cID3\">   Init<script>countdown($time,'cID3');</script></b><br>\n";
+		echo "<b id=\"cID3\">   Init<script>countdown($time,'cID3','question');</script></b><br>\n";
 		foreach ( $set as $k => $v ) {
 			echo "<input class=\"greenbutton\" id =\"$counter\" type=\"button\" value=\"$v\" onClick=\"doit(this)\">\n"; 
 			$order .= $k;
@@ -54,7 +67,7 @@
 		echo "</form>\n";
 		$data['expectedorder'] = $order;
 		$data['values'] = $values;
-
+		$data['lastquestion'] = date("U");
 		@$secretdata = openssl_encrypt(json_encode($data), $secretmethod, $secrethash);
 		$_SESSION['data'] = $secretdata;
 	}

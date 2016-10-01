@@ -392,6 +392,7 @@ var	serverside = {
 			if(game.state) {
 				var st = game.state;
 				if(st.timer)clearInterval(st.timer);
+				// hier am log() bitte nichts dran "andern, Log-Format wird f"ur die Highscoreliste geparsed!
 				log(game.id + " setAnswer " + JSON.stringify(arg) + " right is " + st.right + " for question " + st.pos);
 				if(arg == st.right) {
 					st.current = {
