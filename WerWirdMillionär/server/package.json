@@ -7,6 +7,8 @@
 	  "http" : "*",
 	  "body-parser" : "*",
 	  "request" : "*",
-	  "mongoose" : "*"
+	  "mongoose" : "*",
+	  "winston" : "*",
+	  "winston-papertrail" : "*"
   }
 }

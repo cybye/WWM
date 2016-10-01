@@ -1,6 +1,30 @@
-function log(x,y,z) {
-	console.log(new Date() + " wwm " + x,y,z);
+  var winston = require('winston');
+
+  //
+  // Requiring `winston-papertrail` will expose
+  // `winston.transports.Papertrail`
+  //
+  require('winston-papertrail').Papertrail;
+
+  var winstonPapertrail = new winston.transports.Papertrail({
+    host: 'logs4.papertrailapp.com',
+    port: 17389
+  })
+
+  winstonPapertrail.on('error', function(err) {
+    // Handle, report, or silently ignore connection errors and failures
+  });
+
+  var logger = new winston.Logger({
+    transports: [winstonPapertrail]
+  });
+
+
+function log(x) {
+	console.log(new Date() + " wwm " + x);
+	logger.info(x);
 }
+
 var express = require('express');  
 var app = express();  
 var server = require('http').createServer(app);  
@@ -23,7 +47,7 @@ function security(req, res, andThen) {
 
 // create game - should be post, but for simplicity ;)
 app.get(api_version + '/create', function(req,res){
-	log('create', req.query);
+	log('create ' + req.query);
 	security(req,res,function(req,res) {
 		if(!req.query.id) res.send("please provide correct parameters");
 		else 	
@@ -37,7 +61,7 @@ app.get(api_version + '/create', function(req,res){
 });
 //list the games
 app.get(api_version + '/list', function(req,res){
-	log('list', req.query);
+	log('list' +  req.query);
 	security(req,res,function(req,res) {
 		listStates(games.active, function(states){
 			res.setHeader('Content-Type', 'application/json');
