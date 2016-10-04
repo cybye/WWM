@@ -192,8 +192,7 @@ var games = (function() {
 function findGame(socket,data) {
 	
 	// search the games for the nearest to this position?
-	var id = data.id instanceof String && data.id.toLowerCase()
-	var game = games.find(id)
+	var game = games.find(data.id)
 	
 	return {
 		disconnect: function(){
@@ -201,8 +200,8 @@ function findGame(socket,data) {
 				game.disconnect(socket)
 		},
 		apply: function(){
-			if(!game && id) // no game but a id
-				game = games.create(id)
+			if(!game && data.id) // no game but a id
+				game = games.create(data.id)
 			if(game)	
 				game.apply(socket, data)
 		}
