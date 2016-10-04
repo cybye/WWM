@@ -192,8 +192,8 @@ var games = (function() {
 function findGame(socket,data) {
 	
 	// search the games for the nearest to this position?
-	if(data.id && (data.id instanceof String)) data['id'] = data.id.toLowerCase();
-	var game = games.find(data.id)
+	var id = (data.id instanceof String) ? data.id.toLowerCase() : data.id;
+	var game = games.find(id)
 	
 	return {
 		disconnect: function(){
@@ -201,8 +201,8 @@ function findGame(socket,data) {
 				game.disconnect(socket)
 		},
 		apply: function(){
-			if(!game && data.id) // no game but a id
-				game = games.create(data.id)
+			if(!game && id) // no game but a id
+				game = games.create(id)
 			if(game)	
 				game.apply(socket, data)
 		}
@@ -317,7 +317,7 @@ var	serverside = {
 			if(!game.state) {
 				game.state = {}; // initializing
 				game.playerPositions = {}; // track pos
-				game.state = loadState(game.id);
+				game.state = game.id == -1 ? false : loadState(game.id);
 				if(!game.state) {
 					game.state = { current: { cmd: 'illegalId' }} 
 					game.sync();
