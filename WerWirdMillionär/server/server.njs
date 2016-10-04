@@ -49,9 +49,9 @@ function security(req, res, andThen) {
 app.get(api_version + '/create', function(req,res){
 	log('create ' + req.query);
 	security(req,res,function(req,res) {
-		if(!req.query.id) res.send("please provide correct parameters");
+		if(req.query.id instanceof String) res.send("please provide correct parameters");
 		else 	
-			createGame(req.query.id, req.query.name, function() {
+			createGame(req.query.id.toLowerCase(), req.query.name, function() {
 				res.setHeader('Content-Type', 'application/json');
 				res.send("created")
 			}, function(err) {
@@ -192,7 +192,8 @@ var games = (function() {
 function findGame(socket,data) {
 	
 	// search the games for the nearest to this position?
-	var game = games.find(data.id)
+	var id = data.id instanceof String && data.id.toLowerCase()
+	var game = games.find(id)
 	
 	return {
 		disconnect: function(){
@@ -200,8 +201,8 @@ function findGame(socket,data) {
 				game.disconnect(socket)
 		},
 		apply: function(){
-			if(!game && data.id) // no game but a id
-				game = games.create(data.id)
+			if(!game && id) // no game but a id
+				game = games.create(id)
 			if(game)	
 				game.apply(socket, data)
 		}
