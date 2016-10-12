@@ -59,6 +59,36 @@ app.get(api_version + '/create', function(req,res){
 			})
 	});
 });
+// remove game - should be post, but for simplicity ;)
+app.get(api_version + '/remove', function(req,res){
+	log('create ' + req.query);
+	security(req,res,function(req,res) {
+		if(req.query.id instanceof String) res.send("please provide correct parameters");
+		else 	
+			deleteGame(req.query.id.toLowerCase(), function() {
+				res.setHeader('Content-Type', 'application/json');
+				res.send("deleted")
+			}, function(err) {
+				res.status(500).send("error deleting game");
+			});
+	});
+});
+
+// remove game - should be post, but for simplicity ;)
+app.get(api_version + '/reset', function(req,res){
+	log('create ' + req.query);
+	security(req,res,function(req,res) {
+		if(req.query.id instanceof String) res.send("please provide correct parameters");
+		else 	
+			resetGame(req.query.id.toLowerCase(), function() {
+				res.setHeader('Content-Type', 'application/json');
+				res.send("deleted")
+			}, function(err) {
+				res.status(500).send("error resetting game");
+			});
+	});
+});
+
 //list the games
 app.get(api_version + '/list', function(req,res){
 	log('list' +  req.query);
@@ -165,6 +195,9 @@ var games = (function() {
 				},
 				destroy: function() {
 					delete active[id];
+					for(var i in clients) {
+						if(clients.hasOwnProperty(i)) clients[i].disconnect();
+					}
 				}
 			}			
 		},
@@ -245,6 +278,28 @@ function createGame(id, name, andThen, orElse) {
 	})
 }
 
+function deleteGame(id, andThen, orElse) {
+	resetGame(id, function() {
+		try {
+			deleteState(id);
+			if(andThen) andThen();
+		} catch (err) {
+			log("unable to delete game " + id + " " + JSON.stringify(err))
+			if(orElse) orElse(err);
+		}
+	}, orElse);
+}
+
+function resetGame(id, andThen, orElse) {
+	try {
+		games.find(id).destroy();
+		if(andThen) andThen();
+	} catch (err) {
+		log("unable to reset game " + id + " " + JSON.stringify(err))
+		if(orElse) orElse(err);
+	}
+}
+
 function initDefault(id,name, questions, positions) {
 	return {
 			current: {
@@ -266,13 +321,22 @@ function initDefault(id,name, questions, positions) {
 // destructively writes the given state
 function saveState(id, state) {
 	log("writing game to file " + settings.gamedir +'/'+id)
-	fs.writeFileSync(settings.gamedir + '/' + id,JSON.stringify(state));
+	if(id.indexOf('.')<0 && id.indexOf('/')<0)
+		fs.writeFileSync(settings.gamedir + '/' + id,JSON.stringify(state));
+}
+
+// destructively writes the given state
+function deleteState(id) {
+	log("deleting game file " + settings.gamedir +'/'+id)
+	if(id.indexOf('.')<0 && id.indexOf('/')<0)
+		fs.unlinkSync(settings.gamedir + '/' + id);
 }
 
 // load state 
 function loadState(id, questions, positions) {
 	try {
-		return JSON.parse(fs.readFileSync(settings.gamedir + '/' + id));
+		if(id.indexOf('.')<0 && id.indexOf('/')<0)
+			return JSON.parse(fs.readFileSync(settings.gamedir + '/' + id));
 	} catch(err){
 		log("unable to load game " + id + " " + JSON.stringify(err));
 		return null;
