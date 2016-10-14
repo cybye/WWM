@@ -198,6 +198,9 @@ var games = (function() {
 					for(var i in clients) {
 						if(clients.hasOwnProperty(i)) clients[i].disconnect();
 					}
+				},
+				deleteGame: function() {
+					delete active[id];
 				}
 			}			
 		},
@@ -385,7 +388,7 @@ var	serverside = {
 				if(!game.state) {
 					game.state = { current: { cmd: 'illegalId' }} 
 					game.sync();
-					game.destroy(); // does only destroy the ref not the object
+					game.deleteGame(); // does only destroy the ref not the object
 				} else {
 					game.state.accessed = Date.now(); //track
 					game.sync()
