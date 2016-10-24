@@ -501,7 +501,8 @@ var	serverside = {
 				var d = distance(st.geo[1],st.geo[2], arg[0], arg[1]);
 				// console.log(st.geo[0], st.geo[1], arg[0], arg[1]);
 				if(d[0] < 0.02 /* 20 meters */) {
-					st.current = {cmd: 'atPosition', arg: st.geo[3], cont: st.geo[4]}
+				 fetchText(st.geo[3], function(txt) {
+					st.current = {cmd: 'atPosition', arg: txt, cont: st.geo[4]}
 					st.walk = false;
 					st.nextQuestion = true;
 					
@@ -510,6 +511,7 @@ var	serverside = {
 						saveState(game.id,st)
 					}
 					game.sync();
+				 }) 
 				} else {
 					game.reply(socket, {
 						cmd: 'compass',
@@ -523,12 +525,12 @@ var	serverside = {
 		help : function(game, socket, arg) {
 			log(game.id + " help requested ");
 			var st = game.state;
-			if(st.walk) {
-				st.current = {cmd: 'atPosition', arg: st.geo[3], cont: st.geo[4]}
+			if(st.walk) fetchText(st.geo[3], function(txt) {
+				st.current = {cmd: 'atPosition', arg: txt, cont: st.geo[4]}
 				st.walk = false;
 				st.nextQuestion = true; // dd dangerous
 				game.sync();
-			}
+			})
 		},
 		
 		// requests one of the jokers
@@ -570,6 +572,20 @@ var	serverside = {
 		
 	}
 
+// get text from url
+function fetchText(text, andThen) {
+	if(!text.startsWith("http")) andThen(text)
+	else 
+	request({url:text}), function(error, resp, body) {
+		if(!error && resp.statusCode == 200) {
+			andThen(body)
+		} else {
+			andThen('<b>Oh Mist. Ein Fehler ist aufgetreten :( <br>' 
+			+ '<br>Bitte kontaktiere <a href="mailto:kayzersose@gmail.com">kayzersose@gmail.com</a></b>!)"')
+		} 
+
+	}
+}
 
 // GEO
 function toRad(x) {
@@ -658,6 +674,8 @@ function processPositions(body) {
 	});
 	return positions;
 }
+
+
 
 function updateQuestions(url, andThen) {
 	if(andThen === undefined) return;
