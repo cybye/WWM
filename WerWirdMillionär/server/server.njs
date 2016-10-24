@@ -576,15 +576,16 @@ var	serverside = {
 function fetchText(text, andThen) {
 	if(text.lastIndexOf("http",0) != 0) andThen(text)
 	else 
-	request({url:text}), function(error, resp, body) {
+	request({url:text}, function(error, resp, body) {
 		if(!error && resp.statusCode == 200) {
 			andThen(body)
 		} else {
+			log("Error fetching url " + text + ". Error was " + error) 
 			andThen('<b>Oh Mist. Ein Fehler ist aufgetreten :( <br>' 
 			+ '<br>Bitte kontaktiere <a href="mailto:kayzersose@gmail.com">kayzersose@gmail.com</a></b>!)"')
 		} 
 
-	}
+	})
 }
 
 // GEO
