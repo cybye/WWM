@@ -574,7 +574,7 @@ var	serverside = {
 
 // get text from url
 function fetchText(text, andThen) {
-	if(!text.startsWith("http")) andThen(text)
+	if(text.lastIndexOf("http",0) != 0) andThen(text)
 	else 
 	request({url:text}), function(error, resp, body) {
 		if(!error && resp.statusCode == 200) {
